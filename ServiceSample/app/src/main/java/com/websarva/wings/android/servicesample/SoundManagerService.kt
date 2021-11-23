@@ -1,12 +1,16 @@
 package com.websarva.wings.android.servicesample
 
-import android.app.Service
+import android.app.*
+import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.provider.MediaStore
 import android.util.Log
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
 import java.io.IOException
 import java.lang.IllegalArgumentException
 
@@ -16,9 +20,22 @@ class SoundManagerService : Service() {
      */
     private var _player: MediaPlayer? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
         //フィールドのメディアプレーヤーオブジェクトを生成。
         _player = MediaPlayer()
+        //通知チャネルのID文字列を用意。
+        val id = "soundmanagerservice_notification_channel"
+        //通知チャネル名をstrings.xmlから取得。
+        val name = getString(R.string.notification_channel_name)
+        //通知チャネルの重要度を標準に設定。
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        //通知チャンネルを生成。
+        val channel = NotificationChannel(id, name, importance)
+        //NotificationManagerオブジェクトを取得
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        //通知チャネルを設定。
+        manager.createNotificationChannel(channel)
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -68,6 +85,33 @@ class SoundManagerService : Service() {
         override fun onPrepared(mp: MediaPlayer) {
             //メディアを再生。
             mp.start()
+
+            //Notificationを作成するBuilderクラスを生成。
+            val builder = NotificationCompat.Builder(applicationContext, "soundmanagerservice_notification_channel")
+            //通知エリアに表示されるアイコンを設定。
+            builder.setSmallIcon(android.R.drawable.ic_dialog_info)
+            //通知ドロワーでの表示タイトルを設定。
+            builder.setContentTitle(getString(R.string.msg_notification_title_start))
+            //通知ドロワーでの表示メッセージを設定。
+            builder.setContentText(getString(R.string.msg_notification_text_start))
+            //起動先Activityクラスを指定したIntentオブジェクトを生成。
+            val intent = Intent(applicationContext, MainActivity::class.java)
+            //起動先Activityに引き継ぎデータを格納。
+            intent.putExtra("formNotification", true)
+            //PendingIntentオブジェクトを取得。
+            val stopServiceIntent = PendingIntent.getActivity(applicationContext, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+            //PendingIntentオブジェクトをビルダーに設定。
+            builder.setContentIntent(stopServiceIntent)
+            //タップされた通知を自動的に消去するように設定。
+            builder.setAutoCancel(true)
+
+            //BuilderからNotificationオブジェクトを生成。
+            val notification = builder.build()
+            //NotificationManagerオブジェクトを取得。
+            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            //通知
+            manager.notify(1, notification)
+
         }
     }
 
@@ -76,6 +120,22 @@ class SoundManagerService : Service() {
      */
     private inner class PlayerCompletionListener: MediaPlayer.OnCompletionListener {
         override fun onCompletion(mp: MediaPlayer) {
+            //Notificationを作成するBuilderクラスを生成。
+            val builder = NotificationCompat.Builder(applicationContext, "soundmanagerservice_notification_channel")
+            //通知エリアに表示されるアイコンを設定。
+            builder.setSmallIcon(android.R.drawable.ic_dialog_info)
+            //通知ドロワーでの表示タイトルを設定。
+            builder.setContentTitle(getString(R.string.msg_notification_title_finish))
+            //通知ドロワーでの表示メッセージを設定。
+            builder.setContentText(getString(R.string.msg_notification_text_finish))
+            //BuilderからNotificationオブジェクトを生成。
+            val notification = builder.build()
+            //NotificationManagerオブジェクトを取得。
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            //通知
+            manager.notify(0, notification)
+
+
             //自分自身を終了
             stopSelf()
         }
