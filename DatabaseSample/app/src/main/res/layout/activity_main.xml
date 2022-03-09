@@ -14,6 +14,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+<!--    カクテルリストを表示するListView-->
     <ListView
         android:id="@+id/lvCocktail"
         android:layout_width="match_parent"
@@ -21,27 +22,27 @@
         android:layout_marginBottom="10dp"
         android:layout_weight="0.6"
         android:entries="@array/lv_cocktaillist"/>
-
+<!--「選択されたカクテル:」というラベルを表示するTextView-->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/tv_lb_name"
         android:textSize="20sp"/>
-
+<!--選択されたカクテル名を表示するTextView-->
     <TextView
         android:id="@+id/tvCocktailName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/tv_name"
         android:textSize="20sp"/>
-
+<!--「感想:」とういうラベルを表示するTextView-->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:text="@string/tv_lb_note"
         android:textSize="20sp"/>
-
+<!--感想を入力するEditText-->
     <EditText
         android:id="@+id/etNote"
         android:layout_width="match_parent"
@@ -49,7 +50,7 @@
         android:layout_weight="0.4"
         android:gravity="top"
         android:inputType="textMultiLine"/>
-
+<!--[保存]ボタン-->
     <Button
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
